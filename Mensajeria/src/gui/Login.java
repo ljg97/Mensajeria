@@ -3,7 +3,6 @@ package gui;
 import java.awt.BorderLayout;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -16,13 +15,17 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.ImageIcon;
 
-public class Login extends JDialog {
+public class Login extends JFrame {
 
 	/**
 	 * 
@@ -32,11 +35,33 @@ public class Login extends JDialog {
 	private JPasswordField passwordField;
 	private JTextField textField;
 	private JButton btnLogin;
+	static Connection cn = new Connection();
+	private static Login log;
 	
-	/**
-	 * Create the dialog.
-	 */
-	public Login(Connection cn, JFrame parent) {
+	public static void main(String[] args) {
+		cn.Conectar();
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					log = new Login();
+					log.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	public Login() {
 		setBounds(100, 100, 450, 190);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBackground(Color.DARK_GRAY);
@@ -107,8 +132,12 @@ public class Login extends JDialog {
 				public void actionPerformed(ActionEvent e) {
 					int result = cn.insertUser(textField.getText(), String.valueOf(passwordField.getPassword()));
 					if (result == 1) {
-						dispose();
-						parent.setVisible(true);
+						GUI gui = new GUI(log, cn);
+						gui.setVisible(true);
+						log.setVisible(false);
+						passwordField.setText("");
+						textField.setText("");
+						textField.requestFocus();
 					} else {
 						labelError.setText("Error al registrar el usuario.");
 					}
@@ -123,8 +152,12 @@ public class Login extends JDialog {
 					public void actionPerformed(ActionEvent e) {
 						int result = cn.loginUser(textField.getText(), String.valueOf(passwordField.getPassword()));
 						if (result == 1) {
-							dispose();
-							parent.setVisible(true);
+							GUI gui = new GUI(log, cn);
+							gui.setVisible(true);
+							log.setVisible(false);
+							passwordField.setText("");
+							textField.setText("");
+							textField.requestFocus();
 						} else {
 							labelError.setText("Error al iniciar el usuario.");
 						}

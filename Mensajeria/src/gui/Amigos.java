@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 public class Amigos extends JDialog {
 
@@ -55,6 +56,12 @@ public class Amigos extends JDialog {
 				buttonVolver.setIcon(new ImageIcon(Amigos.class.getResource("/img/return.png")));
 				{
 					JButton buttonAnyadir = new JButton("");
+					buttonAnyadir.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							String nom_u = JOptionPane.showInputDialog(null, "Introduce el nombre del usuario a añadir.", "Agregar usuario", JOptionPane.DEFAULT_OPTION);
+							cn.addFriend(nom_u);
+						}
+					});
 					buttonAnyadir.setIcon(new ImageIcon(Amigos.class.getResource("/img/add-user.png")));
 					buttonAnyadir.setContentAreaFilled(false);
 					buttonAnyadir.setBorderPainted(false);
@@ -80,7 +87,7 @@ public class Amigos extends JDialog {
 	
 	private void cargarAmigos (JPanel parent, Connection cn) {
 		ArrayList<String> amigos = cn.loadFriend();
-		
+		System.out.println(amigos.size());
 		int pos = 10;
 		int inc = 61;
 		
@@ -108,7 +115,7 @@ public class Amigos extends JDialog {
 				but1.setText("Hablar");
 				but1.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-										
+						
 					}
 				});
 				amigo.add(but1);
@@ -116,7 +123,9 @@ public class Amigos extends JDialog {
 				but2.setText("Borrar");
 				but2.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-										
+						cn.deleteFriend(nom.getText());
+						vaciarPanel(parent);
+						cargarAmigos(parent, cn);
 					}
 				});
 				amigo.add(but2);
@@ -124,7 +133,9 @@ public class Amigos extends JDialog {
 				but1.setText("Aceptar");
 				but1.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-										
+						cn.acceptFriend(nom.getText());
+						vaciarPanel(parent);
+						cargarAmigos(parent, cn);						
 					}
 				});
 				amigo.add(but1);
@@ -132,12 +143,14 @@ public class Amigos extends JDialog {
 				but2.setText("Denegar");
 				but2.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-										
+						cn.deleteFriend(nom.getText());
+						vaciarPanel(parent);
+						cargarAmigos(parent, cn);
 					}
 				});
 				amigo.add(but2);
 			}
-			
+
 			pos += inc;
 			parent.add(amigo);
 		}
@@ -149,6 +162,10 @@ public class Amigos extends JDialog {
 	
 	private int sonAmigos(Connection cn, String nom_u) {
 		return cn.itsFriend(nom_u);
+	}
+	
+	private void vaciarPanel(JPanel parent) {
+		parent.removeAll();
 	}
 	
 }
