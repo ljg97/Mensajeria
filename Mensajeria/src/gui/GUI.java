@@ -17,6 +17,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.border.TitledBorder;
 
 public class GUI extends JFrame {
 
@@ -28,7 +31,6 @@ public class GUI extends JFrame {
 	private final JPanel panelMensajes = new JPanel();
 	private final JPanel panelAmigos = new JPanel();
 	private final JPanel panelPeticiones = new JPanel();
-	private final JTextField tfMensaje = new JTextField();
 	/**
 	 * Launch the application.
 	 */
@@ -51,10 +53,6 @@ public class GUI extends JFrame {
 		panelMensajes.setBounds(200, 48, 630, 470);
 		panelMensajes.setBorder(new EmptyBorder(5, 0, 5, 5));
 		panelMensajes.setLayout(null);
-		
-		tfMensaje.setColumns(10);
-		tfMensaje.setBounds(200,518,630,32);
-		getContentPane().add(tfMensaje);
 		
 		panelAmigos.setBackground(Color.DARK_GRAY);
 		panelAmigos.setBounds(0, 48, 415, 502);
@@ -138,26 +136,6 @@ public class GUI extends JFrame {
 			}
 		});
 
-		buttonAmigos.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				buttonAmigos.setVisible(false);
-				buttonAmigos.setEnabled(false);
-				buttonLogOut.setVisible(false);
-				buttonLogOut.setEnabled(false);
-				buttonVolver.setVisible(true);
-				buttonVolver.setEnabled(true);
-				buttonAnyadir.setVisible(true);
-				buttonAnyadir.setEnabled(true);
-				scrollerChats.setVisible(false);
-				scrollerMensajes.setVisible(false);
-				tfMensaje.setVisible(false);
-				scrollerAmigos.setVisible(true);
-				scrollerPeticiones.setVisible(true);
-				cargarAmigos(panelAmigos, cn);
-				cargarPeticiones(panelPeticiones, cn);
-			}
-		});
-		
 		buttonVolver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				buttonAmigos.setVisible(true);
@@ -170,9 +148,28 @@ public class GUI extends JFrame {
 				buttonAnyadir.setEnabled(false);
 				scrollerChats.setVisible(true);
 				scrollerMensajes.setVisible(true);
-				tfMensaje.setVisible(true);
 				scrollerAmigos.setVisible(false);
 				scrollerPeticiones.setVisible(false);
+				cargarChats(panelChats, cn);
+			}
+		});
+		
+		buttonAmigos.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				buttonAmigos.setVisible(false);
+				buttonAmigos.setEnabled(false);
+				buttonLogOut.setVisible(false);
+				buttonLogOut.setEnabled(false);
+				buttonVolver.setVisible(true);
+				buttonVolver.setEnabled(true);
+				buttonAnyadir.setVisible(true);
+				buttonAnyadir.setEnabled(true);
+				scrollerChats.setVisible(false);
+				scrollerMensajes.setVisible(false);
+				scrollerAmigos.setVisible(true);
+				scrollerPeticiones.setVisible(true);
+				cargarAmigos(panelAmigos, cn, buttonVolver.getActionListeners()[0]);
+				cargarPeticiones(panelPeticiones, cn, buttonVolver.getActionListeners()[0]);
 			}
 		});
 
@@ -187,9 +184,8 @@ public class GUI extends JFrame {
 		
 	}
 	
-	private void cargarAmigos (JPanel parent, Connection cn) {
+	private void cargarAmigos (JPanel parent, Connection cn, ActionListener ac) {
 		ArrayList<String> amigos = cn.loadFriend();
-		System.out.println(amigos.size());
 		int pos = 10;
 		int inc = 61;
 		
@@ -216,7 +212,8 @@ public class GUI extends JFrame {
 				but1.setText("Hablar");
 				but1.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						
+						cn.newConver(nom.getText());
+						ac.actionPerformed(e);
 					}
 				});
 				amigo.add(but1);
@@ -226,11 +223,11 @@ public class GUI extends JFrame {
 					public void actionPerformed(ActionEvent e) {
 						cn.deleteFriend(nom.getText());
 						vaciarPanel(parent);
-						cargarAmigos(parent, cn);
+						cargarAmigos(parent, cn, ac);
 					}
 				});
 				amigo.add(but2);
-
+				
 				pos += inc;
 				parent.add(amigo);
 			}
@@ -241,9 +238,8 @@ public class GUI extends JFrame {
 		parent.repaint();
 	}
 	
-	private void cargarPeticiones (JPanel parent, Connection cn) {
+	private void cargarPeticiones (JPanel parent, Connection cn, ActionListener ac) {
 		ArrayList<String> amigos = cn.loadFriend();
-		System.out.println(amigos.size());
 		int pos = 10;
 		int inc = 61;
 		
@@ -273,8 +269,8 @@ public class GUI extends JFrame {
 					public void actionPerformed(ActionEvent e) {
 						cn.acceptFriend(nom.getText());
 						vaciarPanel(parent);
-						cargarAmigos(panelAmigos, cn);
-						cargarPeticiones(panelPeticiones, cn);			
+						cargarAmigos(panelAmigos, cn, ac);
+						cargarPeticiones(panelPeticiones, cn, ac);			
 					}
 				});
 				amigo.add(but1);
@@ -284,8 +280,8 @@ public class GUI extends JFrame {
 					public void actionPerformed(ActionEvent e) {
 						cn.deleteFriend(nom.getText());
 						vaciarPanel(parent);
-						cargarAmigos(panelAmigos, cn);
-						cargarPeticiones(panelPeticiones, cn);
+						cargarAmigos(panelAmigos, cn, ac);
+						cargarPeticiones(panelPeticiones, cn, ac);
 					}
 				});
 				amigo.add(but2);
@@ -310,11 +306,11 @@ public class GUI extends JFrame {
 	
 	private void cargarChats (JPanel parent, Connection cn) {
 		ArrayList<Integer> chats = cn.loadChat();
-		System.out.println(chats.size());
 		int pos = 10;
 		int inc = 61;
 		
 		for (int i = 0; i < chats.size(); i++) {
+			int id = chats.get(i);
 			JPanel chat = new JPanel();			
 			chat.setBounds(10, pos, 165, 50);
 			chat.setBackground(Color.DARK_GRAY);
@@ -323,12 +319,55 @@ public class GUI extends JFrame {
 			JLabel nom = new JLabel();
 			nom.setBounds(10, 10, 135, 15);
 			nom.setForeground(Color.white);
-			nom.setText("Nombre Prueba");
+			nom.setText(cn.getNameChat(id));
 			chat.add(nom);
+			
+			chat.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					cargarMensajes(panelMensajes, cn, id);
+					
+					JTextField tfMensaje = new JTextField();
+					tfMensaje.setColumns(10);
+					tfMensaje.setBounds(200,518,630,32);
+					getContentPane().add(tfMensaje);
+					
+					tfMensaje.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							cn.sendMensaje(id, tfMensaje.getText());
+							cargarMensajes(panelMensajes, cn, id);
+						}
+					});
+					tfMensaje.grabFocus();
+				}
+			});
 			
 			pos += inc;
 			parent.add(chat);
 		}
+	}
+	
+	private void cargarMensajes (JPanel parent, Connection cn, int idc) {
+		ArrayList<String> mensajes = cn.loadMensajes(idc);
+		int pos = 10;
+		int inc = 47;
+		
+		for (int i = 0; i < mensajes.size(); i+=2) {
+			JPanel mensaje = new JPanel();
+			mensaje.setBorder(new TitledBorder(null, mensajes.get(i), TitledBorder.LEADING, TitledBorder.TOP, null, null));
+			mensaje.setBounds(10, pos, 608, 36);
+			panelMensajes.add(mensaje);
+			mensaje.setLayout(null);
+			
+			JLabel labelmensaje = new JLabel(mensajes.get(i+1));
+			labelmensaje.setBounds(10, 14, 588, 14);
+			mensaje.add(labelmensaje);
+			
+			pos += inc;
+			parent.add(mensaje);
+		}
+		parent.revalidate();
+		parent.repaint();
 	}
 	
 	public void logOut(Login log) {

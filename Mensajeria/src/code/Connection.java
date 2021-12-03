@@ -6,11 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
+
 public class Connection {
 
 	java.sql.Connection cn = null;
 	private String nom = "";
-	private int idu = 0;
 
 	public String getNom() {
 		return nom;
@@ -114,7 +117,7 @@ public class Connection {
 		String sentenciaSql = "SELECT idu FROM usuario WHERE nom_u = ? ";
 		PreparedStatement sentencia = null;
 		ResultSet resultado = null;
-		 int id1=getID(),id2=-1;
+		 int id1=getID(nom),id2=-1;
 		try {
 		  sentencia = cn.prepareStatement(sentenciaSql);
 		  sentencia.setString(1, nom_u);
@@ -170,7 +173,7 @@ public class Connection {
 		String sentenciaSql = "SELECT * FROM AMISTAD WHERE (idu1 = ? OR idu2 = ?)";
 		PreparedStatement sentencia = null;
 		ResultSet resultado = null;
-		 int id1=getID();
+		 int id1=getID(nom);
 		try {		  
 		  sentencia = cn.prepareStatement(sentenciaSql);
 		  sentencia.setInt(1, id1);
@@ -217,7 +220,7 @@ public class Connection {
 		String sentenciaSql = "SELECT idu FROM usuario WHERE nom_u = ? ";
 		PreparedStatement sentencia = null;
 		ResultSet resultado = null;
-		 int id1=getID(),id2=-1;
+		 int id1=getID(nom),id2=-1;
 		try {
 		  sentencia = cn.prepareStatement(sentenciaSql);
 		  sentencia.setString(1, nom_u);
@@ -252,7 +255,7 @@ public class Connection {
 		String sentenciaSql = "SELECT idu FROM usuario WHERE nom_u = ? ";
 		PreparedStatement sentencia = null;
 		ResultSet resultado = null;
-		 int id1=getID(),id2=-1;
+		 int id1=getID(nom),id2=-1;
 		try {
 		  sentencia = cn.prepareStatement(sentenciaSql);
 		  sentencia.setString(1, nom_u);
@@ -288,7 +291,7 @@ public class Connection {
 		String sentenciaSql = "SELECT idu FROM usuario WHERE nom_u = ? ";
 		PreparedStatement sentencia = null;
 		ResultSet resultado = null;
-		 int id1=getID(),id2=-1;
+		 int id1=getID(nom),id2=-1;
 		try {
 		  sentencia = cn.prepareStatement(sentenciaSql);
 		  sentencia.setString(1, nom_u);
@@ -323,6 +326,36 @@ public class Connection {
 		return aux;
 	}
 	
+	public void newConver(String nom_u) {
+		try {
+			String sentenciaSql = "BEGIN;INSERT INTO chat (idc) VALUES (DEFAULT);INSERT INTO dialogo (idc, idu1, idu2) SELECT currval('idc_seq'),?,?;END;";
+			PreparedStatement sentencia = null;			
+			sentencia = cn.prepareStatement(sentenciaSql);
+			sentencia.setInt(1, getID(nom));
+			sentencia.setInt(2, getID(nom_u));
+			sentencia.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void newGroup(String nomg) {
+		try {
+			String sentenciaSql = "BEGIN;INSERT INTO chat (idc) VALUES (DEFAULT);INSERT INTO grupo (idc, nom_g) SELECT currval('idc_seq'),?;INSERT INTO participa (idc, idu, administra) SELECT currval('idc_seq'),?,?;END;";
+			PreparedStatement sentencia = null;			
+			sentencia = cn.prepareStatement(sentenciaSql);
+			sentencia.setString(1, nomg);
+			sentencia.setInt(2, getID(nom));
+			sentencia.setBoolean(3, false);
+			sentencia.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 	@SuppressWarnings("resource")
 	public ArrayList<Integer> loadChat() {
 		ArrayList<Integer> aux = new ArrayList<Integer>();
@@ -330,7 +363,7 @@ public class Connection {
 		String sentenciaSql2 = "SELECT idc FROM participa WHERE idu = ?";
 		PreparedStatement sentencia = null;
 		ResultSet resultado = null;
-		int idu = getID(), idc=-1;
+		int idu = getID(nom), idc=-1;
 		
 		try {
 		  
@@ -362,7 +395,118 @@ public class Connection {
 		return aux;
 	}
 	
-	private int getID() {
+	@SuppressWarnings("resource")
+	public ArrayList<String> loadMensajes(int idc) {
+		ArrayList<String> aux = new ArrayList<String>();
+		String sentenciaSql = "SELECT idu, datos FROM mensaje WHERE idc=?";
+		PreparedStatement sentencia = null;
+		ResultSet resultado = null;
+		
+		try {
+		  sentencia = cn.prepareStatement(sentenciaSql);
+		  sentencia.setInt(1, idc);
+		  resultado = sentencia.executeQuery();
+		  while (resultado.next()) {
+			  aux.add(getName(resultado.getInt("idu")));
+			  aux.add(resultado.getString("datos"));
+		  }
+		  
+		} catch (SQLException sqle) {
+		  sqle.printStackTrace();
+		} finally {
+		  if (sentencia != null)
+		    try {
+		      sentencia.close();
+		    } catch (SQLException sqle) {
+		      sqle.printStackTrace();
+		    }
+		}
+		
+		return aux;
+	}
+	
+	@SuppressWarnings("resource")
+	public void sendMensaje(int idc, String data) {
+		String sentenciaSql = "INSERT INTO mensaje(idm,idu,idc,datos,fecha) VALUES (default,?,?,?, now())";
+		PreparedStatement sentencia = null;
+		
+		try {
+		  sentencia = cn.prepareStatement(sentenciaSql);
+		  sentencia.setInt(1, getID(nom));
+		  sentencia.setInt(2, idc);
+		  sentencia.setString(3, data);
+		  sentencia.executeUpdate();
+		  
+		} catch (SQLException sqle) {
+		  sqle.printStackTrace();
+		} finally {
+		  if (sentencia != null)
+		    try {
+		      sentencia.close();
+		    } catch (SQLException sqle) {
+		      sqle.printStackTrace();
+		    }
+		}
+	}
+	
+	public String getNameChat(int idc) {
+		String aux = "";
+		String sentenciaSql1 = "SELECT COUNT(*) FROM dialogo WHERE idc = ?";
+		String sentenciaSql2 = "SELECT * FROM dialogo WHERE idc = ?";
+		String sentenciaSql3 = "SELECT nom_u FROM usuario WHERE idu = ? ";
+		String sentenciaSql4 = "SELECT nom_g FROM grupo WHERE idc = ?";
+		PreparedStatement sentencia = null;
+		ResultSet resultado = null;
+		
+		try {
+		  
+		  sentencia = cn.prepareStatement(sentenciaSql1);
+		  sentencia.setInt(1, idc);
+		  resultado = sentencia.executeQuery();
+		  if (resultado.next()) {
+			  if(resultado.getInt(1) > 0) {
+				  sentencia = cn.prepareStatement(sentenciaSql2);
+				  sentencia.setInt(1, idc);
+				  resultado = sentencia.executeQuery();
+				  if(resultado.next()) {
+					  if(resultado.getInt("idu1") == getID(nom)) {
+						  sentencia = cn.prepareStatement(sentenciaSql3);
+						  sentencia.setInt(1, resultado.getInt("idu2"));
+						  resultado = sentencia.executeQuery();
+						  if(resultado.next())
+							  aux = resultado.getString("nom_u");
+					  }else {
+						  sentencia = cn.prepareStatement(sentenciaSql3);
+						  sentencia.setInt(1, resultado.getInt("idu1"));
+						  resultado = sentencia.executeQuery();
+						  if(resultado.next())
+							  aux = resultado.getString("nom_u");					  
+					  }
+				  }
+			  }else {
+				  System.out.println("entro");
+				  sentencia = cn.prepareStatement(sentenciaSql4);
+				  sentencia.setInt(1, idc);
+				  resultado = sentencia.executeQuery();
+				  if(resultado.next())
+					  aux = resultado.getString("nom_g");				  
+			  } 
+		  }
+		} catch (SQLException sqle) {
+		  sqle.printStackTrace();
+		} finally {
+		  if (sentencia != null)
+		    try {
+		      sentencia.close();
+		    } catch (SQLException sqle) {
+		      sqle.printStackTrace();
+		    }
+		}
+		
+		return aux;
+	}
+	
+	private int getID(String nom) {
 		String sentenciaSql = "SELECT idu FROM usuario WHERE nom_u = ? ";
 		PreparedStatement sentencia = null;
 		ResultSet resultado = null;
@@ -382,9 +526,23 @@ public class Connection {
 		return aux;
 	}
 	
-	public String getNameChat(int idc) {
+	private String getName(int idu) {
+		String sentenciaSql = "SELECT nom_u FROM usuario WHERE idu = ? ";
+		PreparedStatement sentencia = null;
+		ResultSet resultado = null;
 		
-		return "";
+		String aux = "";
+		try {
+			sentencia = cn.prepareStatement(sentenciaSql);
+			sentencia.setInt(1, idu);
+			resultado = sentencia.executeQuery();
+			  while (resultado.next())
+				  aux = resultado.getString(1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return aux;
 	}
-	
 }
