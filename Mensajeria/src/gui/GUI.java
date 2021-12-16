@@ -6,12 +6,14 @@ import javax.swing.border.EmptyBorder;
 
 import code.Connection;
 import java.awt.Dimension;
-
+import java.awt.Point;
 import java.awt.Color;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
+
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -20,6 +22,9 @@ import javax.swing.JOptionPane;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.TitledBorder;
+import java.awt.Font;
+import javax.swing.SwingConstants;
+import javax.swing.JPasswordField;
 
 public class GUI extends JFrame {
 
@@ -31,6 +36,12 @@ public class GUI extends JFrame {
 	private final JPanel panelMensajes = new JPanel();
 	private final JPanel panelAmigos = new JPanel();
 	private final JPanel panelPeticiones = new JPanel();
+	private JScrollPane scrollerMensajes;
+	private JTextField tfNombre;
+	private JPasswordField pfNew;
+	private JPasswordField pfNew2;
+	private JPasswordField pfOld;
+	private String nom;
 	/**
 	 * Launch the application.
 	 */
@@ -38,7 +49,9 @@ public class GUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public GUI(Login log, Connection cn) {
+	public GUI(Login log, Connection cn, String n) {
+		nom = n;
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 847, 589);
 		getContentPane().setBackground(Color.DARK_GRAY);
@@ -50,7 +63,7 @@ public class GUI extends JFrame {
 		panelChats.setLayout(null);
 		
 		panelMensajes.setBackground(Color.DARK_GRAY);
-		panelMensajes.setBounds(200, 48, 630, 470);
+		panelMensajes.setBounds(200, 48, 630, 469);
 		panelMensajes.setBorder(new EmptyBorder(5, 0, 5, 5));
 		panelMensajes.setLayout(null);
 		
@@ -64,6 +77,97 @@ public class GUI extends JFrame {
 		panelPeticiones.setBounds(415, 48, 415, 502);
 		panelPeticiones.setBorder(new EmptyBorder(5, 0, 5, 5));
 		panelPeticiones.setLayout(null);	
+		
+		JPanel panelSettings = new JPanel();
+		panelSettings.setBackground(Color.GRAY);
+		panelSettings.setBounds(0, 48, 831, 502);
+		getContentPane().add(panelSettings);
+		panelSettings.setLayout(null);
+		panelSettings.setVisible(false);
+		
+		JLabel Icon = new JLabel("");
+		Icon.setIcon(new ImageIcon(GUI.class.getResource("/img/user.png")));
+		Icon.setBounds(180, 130, 128, 128);
+		panelSettings.add(Icon);
+		
+		JLabel lblNom = new JLabel(nom);
+		lblNom.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNom.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		lblNom.setBounds(318, 180, 300, 36);
+		lblNom.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+		panelSettings.add(lblNom);
+		
+		JButton btnNom = new JButton("Cambiar nombre");
+		btnNom.setBounds(318, 227, 140, 23);
+		panelSettings.add(btnNom);
+		
+		JButton btnPas = new JButton("Cambiar contrase\u00F1a");
+		btnPas.setBounds(478, 227, 140, 23);
+		panelSettings.add(btnPas);
+		
+		tfNombre = new JTextField();
+		tfNombre.setBounds(318, 298, 300, 28);
+		panelSettings.add(tfNombre);
+		tfNombre.setVisible(false);
+		tfNombre.setColumns(10);
+		
+		JLabel lblCambio = new JLabel("");
+		lblCambio.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCambio.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCambio.setBounds(10, 300, 298, 21);
+		lblCambio.setVisible(false);
+		panelSettings.add(lblCambio);
+		
+		pfNew = new JPasswordField();
+		pfNew.setBounds(318, 337, 300, 28);
+		pfNew.setVisible(false);
+		panelSettings.add(pfNew);
+		
+		pfNew2 = new JPasswordField();
+		pfNew2.setBounds(318, 376, 300, 28);
+		pfNew2.setVisible(false);
+		panelSettings.add(pfNew2);
+		
+		JLabel lblCambioCon = new JLabel("Introduce la nueva contrase\u00F1a");
+		lblCambioCon.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCambioCon.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCambioCon.setBounds(10, 339, 298, 21);
+		lblCambioCon.setVisible(false);
+		panelSettings.add(lblCambioCon);
+		
+		JLabel lblCambioCon2 = new JLabel("Repite la nueva contrase\u00F1a");
+		lblCambioCon2.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblCambioCon2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblCambioCon2.setBounds(10, 378, 298, 21);
+		lblCambioCon2.setVisible(false);
+		panelSettings.add(lblCambioCon2);
+		
+		pfOld = new JPasswordField();
+		pfOld.setBounds(318, 298, 300, 28);
+		pfOld.setVisible(false);
+		panelSettings.add(pfOld);
+		
+		JButton btnOkNom = new JButton("Aceptar");
+		btnOkNom.setBounds(628, 301, 140, 23);
+		btnOkNom.setVisible(false);
+		panelSettings.add(btnOkNom);
+		
+		JButton btnCancel = new JButton("Cancelar");
+		btnCancel.setBounds(628, 340, 140, 23);
+		btnCancel.setVisible(false);
+		panelSettings.add(btnCancel);
+		
+		JLabel lblError = new JLabel("");
+		lblError.setHorizontalAlignment(SwingConstants.CENTER);
+		lblError.setForeground(Color.RED);
+		lblError.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblError.setBounds(180, 261, 588, 26);
+		panelSettings.add(lblError);
+		
+		JButton btnOkPas = new JButton("Aceptar");
+		btnOkPas.setBounds(628, 301, 140, 23);
+		btnOkPas.setVisible(false);
+		panelSettings.add(btnOkPas);
 		
 		JPanel panelBotones = new JPanel();
 		panelBotones.setBackground(Color.LIGHT_GRAY);
@@ -92,7 +196,6 @@ public class GUI extends JFrame {
 		buttonVolver.setBounds(0, 4, 65, 41);
 		panelBotones.add(buttonVolver);
 		buttonVolver.setVisible(false);
-		buttonVolver.setEnabled(false);
 		
 		JButton buttonAnyadir = new JButton("");
 		buttonAnyadir.setIcon(new ImageIcon(GUI.class.getResource("/img/add-user.png")));
@@ -101,7 +204,21 @@ public class GUI extends JFrame {
 		buttonAnyadir.setBounds(766, 4, 65, 41);
 		panelBotones.add(buttonAnyadir);
 		buttonAnyadir.setVisible(false);
-		buttonAnyadir.setEnabled(false);
+		
+		JButton buttonSettings = new JButton("");
+		buttonSettings.setIcon(new ImageIcon(GUI.class.getResource("/img/settings.png")));
+		buttonSettings.setContentAreaFilled(false);
+		buttonSettings.setBorderPainted(false);
+		buttonSettings.setBounds(75, 4, 65, 41);
+		panelBotones.add(buttonSettings);
+		
+		JButton buttonSettingsGroup = new JButton("");
+		buttonSettingsGroup.setIcon(new ImageIcon(GUI.class.getResource("/img/settingsGroup.png")));
+		buttonSettingsGroup.setContentAreaFilled(false);
+		buttonSettingsGroup.setBorderPainted(false);
+		buttonSettingsGroup.setBounds(691, 4, 65, 41);
+		buttonSettingsGroup.setVisible(false);
+		panelBotones.add(buttonSettingsGroup);
 
 		JScrollPane scrollerChats = new JScrollPane();
 		scrollerChats.setBounds(panelChats.getBounds());
@@ -109,7 +226,7 @@ public class GUI extends JFrame {
 		scrollerChats.setViewportView(panelChats);
 		getContentPane().add(scrollerChats);
 		
-		JScrollPane scrollerMensajes = new JScrollPane();
+		scrollerMensajes = new JScrollPane();
 		scrollerMensajes.setBounds(panelMensajes.getBounds());
 		scrollerMensajes.getVerticalScrollBar().setUnitIncrement(7);
 		scrollerMensajes.setViewportView(panelMensajes);
@@ -139,37 +256,184 @@ public class GUI extends JFrame {
 		buttonVolver.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				buttonAmigos.setVisible(true);
-				buttonAmigos.setEnabled(true);
 				buttonLogOut.setVisible(true);
-				buttonLogOut.setEnabled(true);
+				buttonSettings.setVisible(true);
 				buttonVolver.setVisible(false);
-				buttonVolver.setEnabled(false);
 				buttonAnyadir.setVisible(false);
-				buttonAnyadir.setEnabled(false);
 				scrollerChats.setVisible(true);
 				scrollerMensajes.setVisible(true);
 				scrollerAmigos.setVisible(false);
 				scrollerPeticiones.setVisible(false);
+				panelSettings.setVisible(false);
 				cargarChats(panelChats, cn);
+				vaciarPanel(panelMensajes);
+				if(getContentPane().getComponentCount() > 5)
+					getContentPane().remove(5);
 			}
 		});
 		
 		buttonAmigos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				buttonAmigos.setVisible(false);
-				buttonAmigos.setEnabled(false);
 				buttonLogOut.setVisible(false);
-				buttonLogOut.setEnabled(false);
+				buttonSettings.setVisible(false);
+				buttonSettingsGroup.setVisible(false);
 				buttonVolver.setVisible(true);
-				buttonVolver.setEnabled(true);
 				buttonAnyadir.setVisible(true);
-				buttonAnyadir.setEnabled(true);
 				scrollerChats.setVisible(false);
 				scrollerMensajes.setVisible(false);
 				scrollerAmigos.setVisible(true);
 				scrollerPeticiones.setVisible(true);
 				cargarAmigos(panelAmigos, cn, buttonVolver.getActionListeners()[0]);
 				cargarPeticiones(panelPeticiones, cn, buttonVolver.getActionListeners()[0]);
+			}
+		});
+		
+		buttonSettings.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				buttonAmigos.setVisible(false);
+				buttonLogOut.setVisible(false);
+				buttonSettings.setVisible(false);
+				buttonSettingsGroup.setVisible(false);
+				buttonAnyadir.setVisible(false);
+				buttonVolver.setVisible(true);
+				scrollerChats.setVisible(false);
+				scrollerMensajes.setVisible(false);
+				scrollerAmigos.setVisible(false);
+				scrollerPeticiones.setVisible(false);
+				panelSettings.setVisible(true);
+			}
+		});
+		
+
+		btnCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnNom.setEnabled(true);
+				btnPas.setEnabled(true);
+				lblCambio.setVisible(false);
+				btnOkNom.setVisible(false);
+				lblCambio.setVisible(false);
+				lblCambioCon.setVisible(false);
+				lblCambioCon2.setVisible(false);
+				btnOkPas.setVisible(false);
+				btnCancel.setVisible(false);
+				tfNombre.setVisible(false);
+				pfOld.setVisible(false);
+				pfNew.setVisible(false);
+				pfNew2.setVisible(false);
+				tfNombre.setText("");
+				pfOld.setText("");
+				pfNew.setText("");
+				pfNew2.setText("");
+				lblError.setText("");
+			}
+		});
+		
+		btnNom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnNom.setEnabled(false);
+				btnPas.setEnabled(false);
+				lblCambio.setVisible(true);
+				lblCambio.setText("Introduce el nuevo nombre de usuario");
+				btnOkNom.setVisible(true);
+				btnCancel.setVisible(true);
+				tfNombre.setVisible(true);
+			}
+		});
+		
+		btnOkNom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String nom_u = tfNombre.getText();
+				boolean vacio = true;
+				if(nom_u.length()>0) {
+					for (int i=0;i<nom_u.length();i++){
+						if(nom_u.charAt(i)!= ' ')
+							vacio = false;
+					}
+				}
+				if (!vacio) {
+					if(nom_u.equals(nom)) {
+						lblError.setText("El nombre actual y el nuevo no pueden ser iguales");
+						tfNombre.setText("");
+					}else {
+						if(cn.changeNom(nom_u)!=-1) {
+							nom = nom_u;
+							lblNom.setText(nom_u);
+							lblError.setText("");		
+							tfNombre.setText("");
+							btnCancel.getActionListeners()[0].actionPerformed(e);
+							JOptionPane.showMessageDialog(null, "Se ha cambiado el nombre de usuario");							
+						}else {
+							lblError.setText("Nombre de usuario en uso");	
+							tfNombre.setText("");						
+						}				
+					}
+				}else {
+					lblError.setText("Nuevo nombre no puede estar vacio");
+				}
+			}
+		});
+		
+		btnPas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnNom.setEnabled(false);
+				btnPas.setEnabled(false);
+				lblCambio.setVisible(true);
+				lblCambio.setText("Introduce tu contraseña actual");
+				lblCambioCon.setVisible(true);
+				lblCambioCon2.setVisible(true);
+				btnOkPas.setVisible(true);
+				btnCancel.setVisible(true);
+				pfOld.setVisible(true);
+				pfNew.setVisible(true);
+				pfNew2.setVisible(true);
+			}
+		});
+		
+		btnOkPas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String newPas = String.valueOf(pfNew.getPassword());
+				String newPas2 = String.valueOf(pfNew2.getPassword());
+				boolean vacio = true;
+				if(newPas.length()>0) {
+					for (int i=0;i<newPas.length();i++){
+						if(newPas.charAt(i)!= ' ')
+							vacio = false;
+					}
+				}
+				if(newPas2.length()>0) {
+					for (int i=0;i<newPas2.length();i++){
+						if(newPas2.charAt(i)!= ' ')
+							vacio = false;
+					}
+				}
+				if (!vacio) {
+					if(newPas.equals(newPas2)) {
+						int op = cn.changePas(String.valueOf(pfOld.getPassword()),newPas);
+						if(op == 1) {
+							lblError.setText("");
+							pfOld.setText("");
+							pfNew.setText("");
+							pfNew2.setText("");
+							btnCancel.getActionListeners()[0].actionPerformed(e);
+							JOptionPane.showMessageDialog(null, "Se ha cambiado la contraseña");
+						}else if (op == -1){
+							pfOld.setText("");
+							pfNew.setText("");
+							pfNew2.setText("");
+							lblError.setText("La contraseña introducida es incorrecta");
+						}else {
+							pfOld.setText("");
+							pfNew.setText("");
+							pfNew2.setText("");
+							lblError.setText("La contraseña nueva es igual a la antigua");							
+						}
+					}else {
+						lblError.setText("Las contraseñas introducidas no son iguales");
+					}
+				}else {
+					lblError.setText("Nueva constraseña no puede estar vacia");
+				}
 			}
 		});
 
@@ -224,6 +488,7 @@ public class GUI extends JFrame {
 						cn.deleteFriend(nom.getText());
 						vaciarPanel(parent);
 						cargarAmigos(parent, cn, ac);
+						ac.actionPerformed(e);
 					}
 				});
 				amigo.add(but2);
@@ -305,6 +570,7 @@ public class GUI extends JFrame {
 	}
 	
 	private void cargarChats (JPanel parent, Connection cn) {
+		vaciarPanel(parent);
 		ArrayList<Integer> chats = cn.loadChat();
 		int pos = 10;
 		int inc = 61;
@@ -325,6 +591,7 @@ public class GUI extends JFrame {
 			chat.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
+					vaciarPanel(panelMensajes);
 					cargarMensajes(panelMensajes, cn, id);
 					
 					JTextField tfMensaje = new JTextField();
@@ -332,19 +599,32 @@ public class GUI extends JFrame {
 					tfMensaje.setBounds(200,518,630,32);
 					getContentPane().add(tfMensaje);
 					
-					tfMensaje.addActionListener(new ActionListener() {
+					tfMensaje.addActionListener(new ActionListener() {						
 						public void actionPerformed(ActionEvent e) {
-							cn.sendMensaje(id, tfMensaje.getText());
-							cargarMensajes(panelMensajes, cn, id);
+							char[] msj = tfMensaje.getText().toCharArray();
+							boolean ok = false;
+							int i = 0;
+							while(i < msj.length) {
+								if(msj[i] != ' ') 
+									ok = true;
+								i++;
+							}
+							if (ok == true) {
+								cn.sendMensaje(id, tfMensaje.getText());
+								cargarMensajes(panelMensajes, cn, id);
+								tfMensaje.setText("");
+								
+							}
 						}
 					});
 					tfMensaje.grabFocus();
 				}
 			});
-			
+
 			pos += inc;
 			parent.add(chat);
 		}
+		parent.setPreferredSize(new Dimension(parent.getWidth()-20,pos));
 	}
 	
 	private void cargarMensajes (JPanel parent, Connection cn, int idc) {
@@ -355,7 +635,7 @@ public class GUI extends JFrame {
 		for (int i = 0; i < mensajes.size(); i+=2) {
 			JPanel mensaje = new JPanel();
 			mensaje.setBorder(new TitledBorder(null, mensajes.get(i), TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			mensaje.setBounds(10, pos, 608, 36);
+			mensaje.setBounds(10, pos, 588, 36);
 			panelMensajes.add(mensaje);
 			mensaje.setLayout(null);
 			
@@ -366,9 +646,14 @@ public class GUI extends JFrame {
 			pos += inc;
 			parent.add(mensaje);
 		}
+		scrollerMensajes.getViewport().setViewPosition(new Point(1,pos));
+		
+		parent.setPreferredSize(new Dimension(parent.getWidth()-20,pos));
 		parent.revalidate();
 		parent.repaint();
 	}
+	
+	
 	
 	public void logOut(Login log) {
 		log.setVisible(true);

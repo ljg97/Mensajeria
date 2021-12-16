@@ -110,6 +110,80 @@ public class Connection {
 		return aux;
 	}
 	
+	public int changeNom(String nom_u) {
+		int aux = -1;
+
+		String sentenciaSql = "SELECT COUNT(*) FROM usuario WHERE nom_u = ? ";
+		PreparedStatement sentencia = null;
+		ResultSet resultado = null;
+		 
+		try {
+		  sentencia = cn.prepareStatement(sentenciaSql);
+		  sentencia.setString(1, nom_u);
+		  resultado = sentencia.executeQuery();
+		  while (resultado.next()) {
+			  if(resultado.getInt(1)<1) {
+				  sentenciaSql = "UPDATE usuario SET nom_u=? WHERE nom_u=?";
+				  sentencia = cn.prepareStatement(sentenciaSql);
+				  sentencia.setString(1, nom_u);
+				  sentencia.setString(2, nom);
+				  sentencia.executeUpdate();
+				  aux = 1;
+				  nom = nom_u;
+			  }
+		  }
+		} catch (SQLException sqle) {
+		  sqle.printStackTrace();
+		} finally {
+		  if (sentencia != null)
+		    try {
+		      sentencia.close();
+		    } catch (SQLException sqle) {
+		      sqle.printStackTrace();
+		    }
+		}
+		
+		return aux;
+	}
+	
+	public int changePas(String oldPas, String newPas) {
+		int aux = -1;
+
+		String sentenciaSql = "SELECT pass FROM usuario WHERE nom_u = ? ";
+		PreparedStatement sentencia = null;
+		ResultSet resultado = null;
+		 
+		try {
+		  sentencia = cn.prepareStatement(sentenciaSql);
+		  sentencia.setString(1, nom);
+		  resultado = sentencia.executeQuery();
+		  while (resultado.next()) {
+			  String pas = resultado.getString(1);
+			  if(pas.equals(oldPas)) {
+				  if(!pas.equals(newPas)) {
+					  sentenciaSql = "UPDATE usuario SET pass=? WHERE nom_u=?";
+					  sentencia = cn.prepareStatement(sentenciaSql);
+					  sentencia.setString(1, newPas);
+					  sentencia.setString(2, nom);
+					  sentencia.executeUpdate();
+					  aux = 1;
+					  }else aux=-2;
+			  }
+		  }
+		} catch (SQLException sqle) {
+		  sqle.printStackTrace();
+		} finally {
+		  if (sentencia != null)
+		    try {
+		      sentencia.close();
+		    } catch (SQLException sqle) {
+		      sqle.printStackTrace();
+		    }
+		}
+		
+		return aux;
+	}
+	
 	@SuppressWarnings("resource")
 	public int itsFriend(String nom_u) {
 		int aux = -1;
@@ -237,6 +311,20 @@ public class Connection {
 		  sentencia.setInt(3, id2);
 		  sentencia.setInt(4, id1);
 		  sentencia.executeUpdate();
+		  
+		  sentenciaSql = "SELECT idc FROM DIALOGO WHERE idu1=? AND idu2=? OR idu1=? AND idu2=?";
+		  sentencia = cn.prepareStatement(sentenciaSql);
+		  sentencia.setInt(1, id1);
+		  sentencia.setInt(2, id2);
+		  sentencia.setInt(3, id2);
+		  sentencia.setInt(4, id1);
+		  resultado = sentencia.executeQuery();
+		  if(resultado.next()) {
+			  sentenciaSql = "DELETE FROM CHAT WHERE idc=?";
+			  sentencia = cn.prepareStatement(sentenciaSql);
+			  sentencia.setInt(1, resultado.getInt(1));
+			  sentencia.executeUpdate();
+		  }
 		  
 		} catch (SQLException sqle) {
 		  sqle.printStackTrace();

@@ -32,8 +32,8 @@ public class Login extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
-	private JPasswordField passwordField;
-	private JTextField textField;
+	private JPasswordField pfPas;
+	private JTextField tfNom;
 	private JButton btnLogin;
 	static Connection cn = new Connection();
 	private static Login log;
@@ -74,10 +74,10 @@ public class Login extends JFrame {
 		JLabel labelPassword = new JLabel("Contrase\u00F1a:");
 		labelPassword.setForeground(Color.WHITE);
 		
-		passwordField = new JPasswordField();
+		pfPas = new JPasswordField();
 		
-		textField = new JTextField();
-		textField.setColumns(10);
+		tfNom = new JTextField();
+		tfNom.setColumns(10);
 		
 		GroupLayout gl_contentPanel = new GroupLayout(contentPanel);
 		gl_contentPanel.setHorizontalGroup(
@@ -86,12 +86,12 @@ public class Login extends JFrame {
 					.addGap(30)
 					.addComponent(labelUser)
 					.addGap(10)
-					.addComponent(textField, GroupLayout.PREFERRED_SIZE, 319, GroupLayout.PREFERRED_SIZE))
+					.addComponent(tfNom, GroupLayout.PREFERRED_SIZE, 319, GroupLayout.PREFERRED_SIZE))
 				.addGroup(gl_contentPanel.createSequentialGroup()
 					.addGap(10)
 					.addComponent(labelPassword)
 					.addGap(10)
-					.addComponent(passwordField, GroupLayout.PREFERRED_SIZE, 319, GroupLayout.PREFERRED_SIZE))
+					.addComponent(pfPas, GroupLayout.PREFERRED_SIZE, 319, GroupLayout.PREFERRED_SIZE))
 		);
 		gl_contentPanel.setVerticalGroup(
 			gl_contentPanel.createParallelGroup(Alignment.LEADING)
@@ -101,13 +101,13 @@ public class Login extends JFrame {
 						.addGroup(gl_contentPanel.createSequentialGroup()
 							.addGap(3)
 							.addComponent(labelUser))
-						.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(tfNom, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(18)
 					.addGroup(gl_contentPanel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPanel.createSequentialGroup()
 							.addGap(3)
 							.addComponent(labelPassword))
-						.addComponent(passwordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+						.addComponent(pfPas, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
 		);
 		contentPanel.setLayout(gl_contentPanel);
 		{
@@ -130,14 +130,15 @@ public class Login extends JFrame {
 			btnRegistrar.setIcon(new ImageIcon(Login.class.getResource("/img/register.png")));
 			btnRegistrar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					int result = cn.insertUser(textField.getText(), String.valueOf(passwordField.getPassword()));
+					int result = cn.insertUser(tfNom.getText(), String.valueOf(pfPas.getPassword()));
 					if (result == 1) {
-						GUI gui = new GUI(log, cn);
+						GUI gui = new GUI(log, cn, tfNom.getText());
 						gui.setVisible(true);
 						log.setVisible(false);
-						passwordField.setText("");
-						textField.setText("");
-						textField.requestFocus();
+						pfPas.setText("");
+						tfNom.setText("");
+						tfNom.requestFocus();
+						labelError.setText("");
 					} else {
 						labelError.setText("Error al registrar el usuario.");
 					}
@@ -150,14 +151,15 @@ public class Login extends JFrame {
 				btnLogin.setIcon(new ImageIcon(Login.class.getResource("/img/log-in.png")));
 				btnLogin.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						int result = cn.loginUser(textField.getText(), String.valueOf(passwordField.getPassword()));
+						int result = cn.loginUser(tfNom.getText(), String.valueOf(pfPas.getPassword()));
 						if (result == 1) {
-							GUI gui = new GUI(log, cn);
+							GUI gui = new GUI(log, cn, tfNom.getText());
 							gui.setVisible(true);
 							log.setVisible(false);
-							passwordField.setText("");
-							textField.setText("");
-							textField.requestFocus();
+							pfPas.setText("");
+							tfNom.setText("");
+							tfNom.requestFocus();
+							labelError.setText("");
 						} else {
 							labelError.setText("Error al iniciar el usuario.");
 						}
