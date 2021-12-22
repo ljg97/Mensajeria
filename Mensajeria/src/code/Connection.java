@@ -6,10 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
-
 public class Connection {
 
 	java.sql.Connection cn = null;
@@ -27,7 +23,7 @@ public class Connection {
 
 		try {
 			  Class.forName("org.postgresql.Driver");
-			  cn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Mensajeria","postgres", "postgres");
+			  cn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Mensajeria","userMensajeria", "userMensajeria");
 			} catch (ClassNotFoundException cnfe) {
 			  cnfe.printStackTrace();
 			} catch (SQLException sqle) {
@@ -184,6 +180,67 @@ public class Connection {
 		return aux;
 	}
 	
+	public int deleteUser(String pas) {
+		int aux = -2;
+
+		String sentenciaSql = "SELECT pass FROM usuario WHERE nom_u = ? ";
+		PreparedStatement sentencia = null;
+		ResultSet resultado = null;
+		 
+		try {
+		  sentencia = cn.prepareStatement(sentenciaSql);
+		  sentencia.setString(1, nom);
+		  resultado = sentencia.executeQuery();
+		  while (resultado.next()) {
+			  String pass = resultado.getString(1);
+			  if(pass.equals(pas)) {
+				  aux=1;
+				  int id = getID(nom);
+
+				  String sentenciaSqlParticipa = "DELETE FROM participa WHERE idu=?";
+				  PreparedStatement sentenciaParticipa = cn.prepareStatement(sentenciaSqlParticipa);
+				  sentenciaParticipa.setInt(1, id);
+				  sentenciaParticipa.executeUpdate();
+				  
+				  String sentenciaSqlMensajes = "UPDATE mensaje SET idu=null WHERE idu=?";
+				  PreparedStatement sentenciaMensajes = cn.prepareStatement(sentenciaSqlMensajes);
+				  sentenciaMensajes.setInt(1, id);
+				  sentenciaMensajes.executeUpdate();
+				  
+				  String sentenciaSqlDialogos = "DELETE FROM chat WHERE idc=(SELECT idc FROM dialogo WHERE idu1=? OR idu2=?)";
+				  PreparedStatement sentenciaDialogos = cn.prepareStatement(sentenciaSqlDialogos);
+				  sentenciaDialogos.setInt(1, id);
+				  sentenciaDialogos.setInt(2, id);
+				  sentenciaDialogos.executeUpdate();
+				  
+				  String sentenciaSqlAmigos = "DELETE FROM amistad WHERE idu1=? OR idu2=?";
+				  PreparedStatement sentenciaAmigos = cn.prepareStatement(sentenciaSqlAmigos);
+				  sentenciaAmigos.setInt(1, id);
+				  sentenciaAmigos.setInt(2, id);
+				  sentenciaAmigos.executeUpdate();
+				  
+				  String sentenciaSqlUsuario = "DELETE FROM usuario WHERE idu=?";
+				  PreparedStatement sentenciaUsuario = cn.prepareStatement(sentenciaSqlUsuario);
+				  sentenciaUsuario.setInt(1, id);
+				  sentenciaUsuario.executeUpdate();
+			  }else
+				  aux = -1;
+		  }
+		} catch (SQLException sqle) {
+		  sqle.printStackTrace();
+		} finally {
+		  if (sentencia != null)
+		    try {
+		      sentencia.close();
+		      resultado.close();
+		    } catch (SQLException sqle) {
+		      sqle.printStackTrace();
+		    }
+		}
+		
+		return aux;
+	}
+	
 	@SuppressWarnings("resource")
 	public int itsFriend(String nom_u) {
 		int aux = -1;
@@ -240,7 +297,6 @@ public class Connection {
 		return aux;
 	}
 	
-	@SuppressWarnings("resource")
 	public ArrayList<String> loadFriend() {
 		ArrayList<String> aux = new ArrayList<String>();
 		
@@ -301,8 +357,6 @@ public class Connection {
 		  resultado = sentencia.executeQuery();
 		  while (resultado.next())
 			  id2 = resultado.getInt(1);
-		  
-		  System.out.println("id1: " + id1 + "\nid2: " + id2);
 		  
 		  sentenciaSql = "DELETE FROM AMISTAD WHERE idu1=? AND idu2=? OR idu1=? AND idu2=?";
 		  sentencia = cn.prepareStatement(sentenciaSql);
@@ -389,8 +443,6 @@ public class Connection {
 			  aux = 1;
 		  }
 		  if(aux == 1) {
-
-			  System.out.println("id1: " + id1 + "\nid2: " + id2);
 			  
 			  sentenciaSql = "INSERT INTO amistad (idu1, idu2, stat) VALUES (?, ?, ?)";
 			  sentencia = cn.prepareStatement(sentenciaSql);
@@ -451,7 +503,7 @@ public class Connection {
 		String sentenciaSql2 = "SELECT idc FROM participa WHERE idu = ?";
 		PreparedStatement sentencia = null;
 		ResultSet resultado = null;
-		int idu = getID(nom), idc=-1;
+		int idu = getID(nom);
 		
 		try {
 		  
@@ -483,7 +535,6 @@ public class Connection {
 		return aux;
 	}
 	
-	@SuppressWarnings("resource")
 	public ArrayList<String> loadMensajes(int idc) {
 		ArrayList<String> aux = new ArrayList<String>();
 		String sentenciaSql = "SELECT idu, datos FROM mensaje WHERE idc=?";
@@ -513,7 +564,6 @@ public class Connection {
 		return aux;
 	}
 	
-	@SuppressWarnings("resource")
 	public void sendMensaje(int idc, String data) {
 		String sentenciaSql = "INSERT INTO mensaje(idm,idu,idc,datos,fecha) VALUES (default,?,?,?, now())";
 		PreparedStatement sentencia = null;
@@ -553,31 +603,46 @@ public class Connection {
 		  resultado = sentencia.executeQuery();
 		  if (resultado.next()) {
 			  if(resultado.getInt(1) > 0) {
-				  sentencia = cn.prepareStatement(sentenciaSql2);
-				  sentencia.setInt(1, idc);
-				  resultado = sentencia.executeQuery();
-				  if(resultado.next()) {
-					  if(resultado.getInt("idu1") == getID(nom)) {
-						  sentencia = cn.prepareStatement(sentenciaSql3);
-						  sentencia.setInt(1, resultado.getInt("idu2"));
-						  resultado = sentencia.executeQuery();
-						  if(resultado.next())
-							  aux = resultado.getString("nom_u");
+				  PreparedStatement sentencia2 = null;
+					ResultSet resultado2 = null;
+				  sentencia2 = cn.prepareStatement(sentenciaSql2);
+				  sentencia2.setInt(1, idc);
+				  resultado2 = sentencia2.executeQuery();
+				  if(resultado2.next()) {
+					  if(resultado2.getInt("idu1") == getID(nom)) {
+						  PreparedStatement sentencia3 = null;
+							ResultSet resultado3 = null;
+						  sentencia3 = cn.prepareStatement(sentenciaSql3);
+						  sentencia3.setInt(1, resultado2.getInt("idu2"));
+						  resultado3 = sentencia3.executeQuery();
+						  if(resultado3.next())
+							  aux = resultado3.getString("nom_u");
+						  sentencia3.close();
+						  resultado3.close();
 					  }else {
-						  sentencia = cn.prepareStatement(sentenciaSql3);
-						  sentencia.setInt(1, resultado.getInt("idu1"));
-						  resultado = sentencia.executeQuery();
-						  if(resultado.next())
-							  aux = resultado.getString("nom_u");					  
+						  PreparedStatement sentencia3 = null;
+							ResultSet resultado3 = null;
+						  sentencia3 = cn.prepareStatement(sentenciaSql3);
+						  sentencia3.setInt(1, resultado2.getInt("idu1"));
+						  resultado3 = sentencia3.executeQuery();
+						  if(resultado3.next())
+							  aux = resultado3.getString("nom_u");
+						  sentencia3.close();
+						  resultado3.close();
 					  }
 				  }
+				  sentencia2.close();
+				  resultado2.close();
 			  }else {
-				  System.out.println("entro");
-				  sentencia = cn.prepareStatement(sentenciaSql4);
-				  sentencia.setInt(1, idc);
-				  resultado = sentencia.executeQuery();
-				  if(resultado.next())
-					  aux = resultado.getString("nom_g");				  
+				  PreparedStatement sentencia2 = null;
+					ResultSet resultado2 = null;
+				  sentencia2 = cn.prepareStatement(sentenciaSql4);
+				  sentencia2.setInt(1, idc);
+				  resultado2 = sentencia2.executeQuery();
+				  if(resultado2.next())
+					  aux = resultado2.getString("nom_g");	
+				  sentencia2.close();
+				  resultado2.close();
 			  } 
 		  }
 		} catch (SQLException sqle) {
@@ -586,6 +651,7 @@ public class Connection {
 		  if (sentencia != null)
 		    try {
 		      sentencia.close();
+			  resultado.close();
 		    } catch (SQLException sqle) {
 		      sqle.printStackTrace();
 		    }
@@ -626,6 +692,50 @@ public class Connection {
 			resultado = sentencia.executeQuery();
 			  while (resultado.next())
 				  aux = resultado.getString(1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return aux;
+	}
+	
+	public boolean isGroup(int idc) {
+		boolean aux = false;
+
+		String sentenciaSql = "SELECT COUNT(*) FROM grupo WHERE idc=?";
+		PreparedStatement sentencia = null;
+		ResultSet resultado = null;
+		try {
+			sentencia = cn.prepareStatement(sentenciaSql);
+			sentencia.setInt(1, idc);
+			resultado = sentencia.executeQuery();
+			  while (resultado.next()) {
+				  if(resultado.getInt(1) > 0)
+					  aux = true;
+			  }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		return aux;
+	}
+	
+	public boolean isAdmin(int id, String nom_u) {
+		boolean aux = false;
+		
+		String sentenciaSql = "SELECT administra FROM participa WHERE idc=? AND idu=?";
+		PreparedStatement sentencia = null;
+		ResultSet resultado = null;
+		try {
+			sentencia = cn.prepareStatement(sentenciaSql);
+			sentencia.setInt(1, id);
+			sentencia.setInt(2, getID(nom_u));
+			resultado = sentencia.executeQuery();
+			  while (resultado.next()) {
+				  aux = resultado.getBoolean(1);
+			  }
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

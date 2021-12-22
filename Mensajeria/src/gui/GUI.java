@@ -5,12 +5,14 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import code.Connection;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Color;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.awt.event.ActionEvent;
 
 import javax.swing.BorderFactory;
@@ -25,6 +27,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.JPasswordField;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.EtchedBorder;
 
 public class GUI extends JFrame {
 
@@ -42,6 +46,9 @@ public class GUI extends JFrame {
 	private JPasswordField pfNew2;
 	private JPasswordField pfOld;
 	private String nom;
+	private JButton buttonSettingsGroup;
+	private JTextField tfMensaje;
+	private JPanel panelSettingsGroup;
 	/**
 	 * Launch the application.
 	 */
@@ -77,6 +84,14 @@ public class GUI extends JFrame {
 		panelPeticiones.setBounds(415, 48, 415, 502);
 		panelPeticiones.setBorder(new EmptyBorder(5, 0, 5, 5));
 		panelPeticiones.setLayout(null);	
+		
+		panelSettingsGroup = new JPanel();
+		panelSettingsGroup.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		panelSettingsGroup.setBackground(Color.GRAY);
+		panelSettingsGroup.setLayout(null);
+		panelSettingsGroup.setBounds(472, 0, 359, 517);
+		panelSettingsGroup.setVisible(false);
+		getContentPane().add(panelSettingsGroup);
 		
 		JPanel panelSettings = new JPanel();
 		panelSettings.setBackground(Color.GRAY);
@@ -169,6 +184,15 @@ public class GUI extends JFrame {
 		btnOkPas.setVisible(false);
 		panelSettings.add(btnOkPas);
 		
+		JButton btnDelete = new JButton("BORRAR USUARIO");
+		btnDelete.setBounds(628, 227, 140, 23);
+		panelSettings.add(btnDelete);
+		
+		JButton btnOkDelete = new JButton("Aceptar");
+		btnOkDelete.setBounds(628, 301, 140, 23);
+		btnOkDelete.setVisible(false);
+		panelSettings.add(btnOkDelete);
+		
 		JPanel panelBotones = new JPanel();
 		panelBotones.setBackground(Color.LIGHT_GRAY);
 		panelBotones.setBounds(0, 0, 831, 49);
@@ -212,7 +236,7 @@ public class GUI extends JFrame {
 		buttonSettings.setBounds(75, 4, 65, 41);
 		panelBotones.add(buttonSettings);
 		
-		JButton buttonSettingsGroup = new JButton("");
+		buttonSettingsGroup = new JButton("");
 		buttonSettingsGroup.setIcon(new ImageIcon(GUI.class.getResource("/img/settingsGroup.png")));
 		buttonSettingsGroup.setContentAreaFilled(false);
 		buttonSettingsGroup.setBorderPainted(false);
@@ -231,6 +255,11 @@ public class GUI extends JFrame {
 		scrollerMensajes.getVerticalScrollBar().setUnitIncrement(7);
 		scrollerMensajes.setViewportView(panelMensajes);
 		getContentPane().add(scrollerMensajes);
+				
+		tfMensaje = new JTextField();
+		tfMensaje.setColumns(10);
+		tfMensaje.setBounds(200,518,630,32);
+		getContentPane().add(tfMensaje);
 		
 		JScrollPane scrollerAmigos = new JScrollPane();
 		scrollerAmigos.setBounds(panelAmigos.getBounds());
@@ -246,7 +275,7 @@ public class GUI extends JFrame {
 		scrollerPeticiones.setViewportView(panelPeticiones);
 		getContentPane().add(scrollerPeticiones);
 		scrollerPeticiones.setVisible(false);
-
+		
 		buttonLogOut.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				logOut(log);
@@ -262,13 +291,13 @@ public class GUI extends JFrame {
 				buttonAnyadir.setVisible(false);
 				scrollerChats.setVisible(true);
 				scrollerMensajes.setVisible(true);
+				if(Objects.isNull(tfMensaje)==false)
+					tfMensaje.setVisible(false);
 				scrollerAmigos.setVisible(false);
 				scrollerPeticiones.setVisible(false);
 				panelSettings.setVisible(false);
 				cargarChats(panelChats, cn);
 				vaciarPanel(panelMensajes);
-				if(getContentPane().getComponentCount() > 5)
-					getContentPane().remove(5);
 			}
 		});
 		
@@ -282,6 +311,8 @@ public class GUI extends JFrame {
 				buttonAnyadir.setVisible(true);
 				scrollerChats.setVisible(false);
 				scrollerMensajes.setVisible(false);
+				if(Objects.isNull(tfMensaje)==false)
+					tfMensaje.setVisible(false);
 				scrollerAmigos.setVisible(true);
 				scrollerPeticiones.setVisible(true);
 				cargarAmigos(panelAmigos, cn, buttonVolver.getActionListeners()[0]);
@@ -299,6 +330,8 @@ public class GUI extends JFrame {
 				buttonVolver.setVisible(true);
 				scrollerChats.setVisible(false);
 				scrollerMensajes.setVisible(false);
+				if(Objects.isNull(tfMensaje)==false)
+					tfMensaje.setVisible(false);
 				scrollerAmigos.setVisible(false);
 				scrollerPeticiones.setVisible(false);
 				panelSettings.setVisible(true);
@@ -310,6 +343,7 @@ public class GUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				btnNom.setEnabled(true);
 				btnPas.setEnabled(true);
+				btnDelete.setEnabled(true);
 				lblCambio.setVisible(false);
 				btnOkNom.setVisible(false);
 				lblCambio.setVisible(false);
@@ -317,6 +351,7 @@ public class GUI extends JFrame {
 				lblCambioCon2.setVisible(false);
 				btnOkPas.setVisible(false);
 				btnCancel.setVisible(false);
+				btnOkDelete.setVisible(false);
 				tfNombre.setVisible(false);
 				pfOld.setVisible(false);
 				pfNew.setVisible(false);
@@ -333,6 +368,7 @@ public class GUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				btnNom.setEnabled(false);
 				btnPas.setEnabled(false);
+				btnDelete.setEnabled(false);
 				lblCambio.setVisible(true);
 				lblCambio.setText("Introduce el nuevo nombre de usuario");
 				btnOkNom.setVisible(true);
@@ -374,10 +410,52 @@ public class GUI extends JFrame {
 			}
 		});
 		
+		btnDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int op = JOptionPane.showConfirmDialog(null, "¿Realmente quieres eliminar tu cuenta?", "Eliminar cuenta", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if(op == 0) {
+					btnNom.setEnabled(false);
+					btnPas.setEnabled(false);
+					btnDelete.setEnabled(false);
+					lblCambio.setVisible(true);
+					lblCambio.setText("Introduce tu contraseña");
+					btnOkDelete.setVisible(true);					
+					btnCancel.setVisible(true);
+					pfOld.setVisible(true);				
+				}
+			}
+		});
+		
+		btnOkDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean vacio = true;
+				if(pfOld.getPassword().length>0) {
+					for (int i=0;i<pfOld.getPassword().length;i++){
+						if(String.valueOf(pfOld.getPassword()).charAt(i)!= ' ')
+							vacio = false;
+					}
+				}
+				
+				if (!vacio) {
+					int op = cn.deleteUser(String.valueOf(pfOld.getPassword()));
+					if(op == -1) {
+						pfOld.setText("");
+						lblError.setText("La contraseña es incorrecta");
+					}else if (op == 1) {
+						logOut(log);					
+					}else
+						lblError.setText("No puedes dejar grupos sin administrador");	
+				}else {
+					lblError.setText("El campo constraseña no puede estar vacio");
+				}
+			}
+		});
+		
 		btnPas.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btnNom.setEnabled(false);
 				btnPas.setEnabled(false);
+				btnDelete.setEnabled(false);
 				lblCambio.setVisible(true);
 				lblCambio.setText("Introduce tu contraseña actual");
 				lblCambioCon.setVisible(true);
@@ -437,6 +515,21 @@ public class GUI extends JFrame {
 			}
 		});
 
+		buttonSettingsGroup.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				panelSettingsGroup.setVisible(true);
+				buttonSettingsGroup.setVisible(false);
+			}
+		});
+		
+		panelSettingsGroup.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseExited(MouseEvent e) {
+				panelSettingsGroup.setVisible(false);
+				buttonSettingsGroup.setVisible(true);
+			}
+		});
+		
 		buttonAnyadir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String nom_u = JOptionPane.showInputDialog(null, "Introduce el nombre del usuario a añadir.", "Agregar usuario", JOptionPane.DEFAULT_OPTION);
@@ -445,7 +538,6 @@ public class GUI extends JFrame {
 		});
 		
 		cargarChats(panelChats, cn);
-		
 	}
 	
 	private void cargarAmigos (JPanel parent, Connection cn, ActionListener ac) {
@@ -582,24 +674,24 @@ public class GUI extends JFrame {
 			chat.setBackground(Color.DARK_GRAY);
 			chat.setLayout(null);
 			
-			JLabel nom = new JLabel();
-			nom.setBounds(10, 10, 135, 15);
-			nom.setForeground(Color.white);
-			nom.setText(cn.getNameChat(id));
-			chat.add(nom);
+			JLabel nom_c = new JLabel();
+			nom_c.setBounds(10, 10, 135, 15);
+			nom_c.setForeground(Color.white);
+			nom_c.setText(cn.getNameChat(id));
+			chat.add(nom_c);
 			
 			chat.addMouseListener(new MouseAdapter() {
+
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					vaciarPanel(panelMensajes);
 					cargarMensajes(panelMensajes, cn, id);
+					tfMensaje.setVisible(true);
+
+					if(tfMensaje.getActionListeners().length > 0)
+						tfMensaje.removeActionListener(tfMensaje.getActionListeners()[0]);
 					
-					JTextField tfMensaje = new JTextField();
-					tfMensaje.setColumns(10);
-					tfMensaje.setBounds(200,518,630,32);
-					getContentPane().add(tfMensaje);
-					
-					tfMensaje.addActionListener(new ActionListener() {						
+					tfMensaje.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
 							char[] msj = tfMensaje.getText().toCharArray();
 							boolean ok = false;
@@ -612,12 +704,83 @@ public class GUI extends JFrame {
 							if (ok == true) {
 								cn.sendMensaje(id, tfMensaje.getText());
 								cargarMensajes(panelMensajes, cn, id);
-								tfMensaje.setText("");
-								
+								tfMensaje.setText("");									
 							}
 						}
 					});
 					tfMensaje.grabFocus();
+
+					if(cn.isGroup(id)) {
+						panelSettingsGroup.removeAll();
+						buttonSettingsGroup.setVisible(true);
+						
+						boolean admin = cn.isAdmin(id, nom);
+						
+						MouseAdapter dntClose = new MouseAdapter() {public void mouseEntered(MouseEvent e) {
+							panelSettingsGroup.setVisible(true);
+						}};
+						
+						JLabel lblGroupName = new JLabel("Nombre Grupo");
+						lblGroupName.setFont(new Font("Tahoma", Font.BOLD, 14));
+						lblGroupName.setBounds(10, 11, 339, 34);
+						lblGroupName.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+						panelSettingsGroup.add(lblGroupName);
+						
+						JButton btnGroupExit = new JButton("Salir");
+						btnGroupExit.setBounds(260, 56, 89, 23);
+						panelSettingsGroup.add(btnGroupExit);
+						
+						JButton btnGroupDelete = new JButton("Borrar");
+						btnGroupDelete.setBounds(260, 483, 89, 23);
+						panelSettingsGroup.add(btnGroupDelete);
+						
+						JButton btnGroupAdd = new JButton("A\u00F1adir");
+						btnGroupAdd.setBounds(10, 56, 89, 23);
+						panelSettingsGroup.add(btnGroupAdd);
+						
+						JPanel panelGroupUsers = new JPanel();
+						panelGroupUsers.setBackground(Color.LIGHT_GRAY);
+						panelGroupUsers.setBounds(10, 90, 339, 382);
+						
+						JScrollPane scrollerGroupUsers = new JScrollPane();
+						scrollerGroupUsers.setBounds(panelGroupUsers.getBounds());
+						scrollerGroupUsers.getVerticalScrollBar().setUnitIncrement(7);
+						scrollerGroupUsers.setViewportView(panelGroupUsers);
+						panelGroupUsers.setLayout(null);
+						panelSettingsGroup.add(scrollerGroupUsers);
+						scrollerGroupUsers.setVisible(true);
+						
+						JPanel panelGroupUser = new JPanel();
+						panelGroupUser.setBounds(10, 10, 295, 30);
+						panelGroupUsers.add(panelGroupUser);
+						panelGroupUser.setLayout(null);
+						
+						JLabel lblGroupUserName = new JLabel("Nombre Usuario");
+						lblGroupUserName.setBounds(10, 8, 138, 14);
+						panelGroupUser.add(lblGroupUserName);
+						
+						JButton btnKick = new JButton("");
+						btnKick.setIcon(new ImageIcon(GUI.class.getResource("/img/kick-off.png")));
+						btnKick.setBounds(245, 2, 40, 25);
+						panelGroupUser.add(btnKick);
+						
+						JButton btnAdmin = new JButton("");
+						btnAdmin.setIcon(new ImageIcon(GUI.class.getResource("/img/crown.png")));
+						btnAdmin.setBounds(195, 2, 40, 25);
+						panelGroupUser.add(btnAdmin);
+						btnAdmin.setBackground(Color.red);	
+						
+
+						btnGroupExit.addMouseListener(dntClose);						
+						btnGroupAdd.addMouseListener(dntClose);						
+						btnGroupDelete.addMouseListener(dntClose);
+						scrollerGroupUsers.addMouseListener(dntClose);
+						btnKick.addMouseListener(dntClose);
+						btnAdmin.addMouseListener(dntClose);
+						
+					}else {
+						buttonSettingsGroup.setVisible(false);						
+					}
 				}
 			});
 
@@ -633,18 +796,31 @@ public class GUI extends JFrame {
 		int inc = 47;
 		
 		for (int i = 0; i < mensajes.size(); i+=2) {
-			JPanel mensaje = new JPanel();
-			mensaje.setBorder(new TitledBorder(null, mensajes.get(i), TitledBorder.LEADING, TitledBorder.TOP, null, null));
-			mensaje.setBounds(10, pos, 588, 36);
-			panelMensajes.add(mensaje);
-			mensaje.setLayout(null);
-			
-			JLabel labelmensaje = new JLabel(mensajes.get(i+1));
-			labelmensaje.setBounds(10, 14, 588, 14);
-			mensaje.add(labelmensaje);
-			
-			pos += inc;
-			parent.add(mensaje);
+			if(mensajes.get(i) == "") {
+				JPanel mensaje = new JPanel();
+				mensaje.setBorder(new TitledBorder(null, "Eliminado", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+				mensaje.setBounds(10, pos, 588, 36);
+				panelMensajes.add(mensaje);
+				mensaje.setLayout(null);
+				
+				JLabel labelmensaje = new JLabel("Este mensaje ha sido eliminado");
+				labelmensaje.setBounds(10, 14, 588, 14);
+				mensaje.add(labelmensaje);	
+				pos += inc;
+				parent.add(mensaje);			
+			}else {
+				JPanel mensaje = new JPanel();
+				mensaje.setBorder(new TitledBorder(null, mensajes.get(i), TitledBorder.LEADING, TitledBorder.TOP, null, null));
+				mensaje.setBounds(10, pos, 588, 36);
+				panelMensajes.add(mensaje);
+				mensaje.setLayout(null);
+				
+				JLabel labelmensaje = new JLabel(mensajes.get(i+1));
+				labelmensaje.setBounds(10, 14, 588, 14);
+				mensaje.add(labelmensaje);		
+				pos += inc;
+				parent.add(mensaje);		
+			}
 		}
 		scrollerMensajes.getViewport().setViewPosition(new Point(1,pos));
 		
@@ -658,9 +834,5 @@ public class GUI extends JFrame {
 	public void logOut(Login log) {
 		log.setVisible(true);
 		dispose();
-	}
-	
-	public void verAmigos() {
-		
 	}
 }
